@@ -10,3 +10,4 @@ aws s3api put-object --bucket ${BUCKET_NAME} --key config/
 aws s3api put-object --bucket ${BUCKET_NAME} --key scripts/
 
 aws kinesis create-stream --stream-name energy-stream --shard-count 1
+
