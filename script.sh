@@ -6,17 +6,6 @@ export ROLE_ARN=$(aws iam get-role --role-name LabRole --query 'Role.Arn' --outp
 export LAMBDA_ARN=$(aws lambda get-function --function-name energy-firehose-lambda --query 'Configuration.FunctionArn' --output text)
 
 echo "Usando Bucket: $BUCKET_NAME y Role: $ROLE_ARN"
-```
-
-**Windows (PowerShell):**
-
-```powershell
-$env:AWS_REGION="us-east-1"
-$env:ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-$env:BUCKET_NAME="datalake-consumo-energetico-$($env:ACCOUNT_ID)"
-$env:ROLE_ARN=$(aws iam get-role --role-name LabRole --query 'Role.Arn' --output text)
-
-```
 
 --- Kinesis & S3
 
