@@ -1,0 +1,164 @@
+\subsection{Configuración del consumidor (Kinesis Firehose)}
+
+Kinesis Data Firehose actúa como consumidor del stream, aplicando transformaciones mediante una función Lambda antes de almacenar los datos en S3.
+
+\subsubsection{Función Lambda de transformación}
+
+La función Lambda realiza las siguientes transformaciones y enriquecimientos:
+
+\begin{enumerate}
+    \item \textbf{Añade timestamp de procesamiento:} Marca temporal ISO 8601 del momento de procesamiento.
+    \item \textbf{Categorización de precio:} Clasifica los juegos según su precio en cinco categorías.
+    \item \textbf{Categorización de popularidad:} Clasifica según el número de recomendaciones.
+    \item \textbf{Particionamiento dinámico:} Extrae el año de lanzamiento para particionar los datos en S3.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Categorías de precio implementadas}
+\begin{tabular}{ll}
+\toprule
+\textbf{Categoría} & \textbf{Rango de precio (USD)} \\
+\midrule
+Free & \$0.00 \\
+Budget & \$0.01 - \$9.99 \\
+Standard & \$10.00 - \$29.99 \\
+Premium & \$30.00 - \$59.99 \\
+Deluxe & \$60.00+ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Categorías de popularidad implementadas}
+\begin{tabular}{ll}
+\toprule
+\textbf{Categoría} & \textbf{Número de recomendaciones} \\
+\midrule
+New & 0 \\
+Low & 1 - 99 \\
+Medium & 100 - 999 \\
+High & 1,000 - 9,999 \\
+Very High & 10,000+ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Código de la función Lambda}
+
+\begin{lstlisting}[language=Python, caption={firehose.py - Función Lambda de transformación}]
+import json
+import base64
+import datetime
+
+def lambda_handler(event, context):
+    """
+    Lambda para Kinesis Firehose: transforma y enriquece datos 
+    de juegos de Steam.
+    - Anade timestamp de procesamiento
+    - Filtra juegos gratuitos (precio = 0) marcandolos
+    - Enriquece con categoria de precio
+    - Crea particion por ano de lanzamiento
+    """
+    output = []
+    for record in event['records']:
+        payload = base64.b64decode(record['data']).decode('utf-8')
+        data_json = json.loads(payload)
+        
+        # Anadir timestamp de procesamiento
+        processing_time = datetime.datetime.now(datetime.timezone.utc)
+        data_json['processing_timestamp'] = processing_time.isoformat()
+        
+        # Enriquecimiento: categoria de precio
+        price = float(data_json.get('price', 0))
+        if price == 0:
+            data_json['price_category'] = 'Free'
+        elif price < 10:
+            data_json['price_category'] = 'Budget'
+        elif price < 30:
+            data_json['price_category'] = 'Standard'
+        elif price < 60:
+            data_json['price_category'] = 'Premium'
+        else:
+            data_json['price_category'] = 'Deluxe'
+        
+        # Enriquecimiento: popularidad basada en recomendaciones
+        recommendations = int(data_json.get('recommendations', 0))
+        if recommendations == 0:
+            data_json['popularity'] = 'New'
+        elif recommendations < 100:
+            data_json['popularity'] = 'Low'
+        elif recommendations < 1000:
+            data_json['popularity'] = 'Medium'
+        elif recommendations < 10000:
+            data_json['popularity'] = 'High'
+        else:
+            data_json['popularity'] = 'Very High'
+        
+        # Crear clave de particion por ano de lanzamiento
+        release_year = data_json.get('release_year', 'unknown')
+        if not release_year or release_year == '':
+            release_year = 'unknown'
+        
+        # Eliminar release_year del JSON para evitar duplicados 
+        # con la columna de particion en S3
+        if 'release_year' in data_json:
+            del data_json['release_year']
+        
+        output_record = {
+            'recordId': record['recordId'],
+            'result': 'Ok',
+            'data': base64.b64encode(
+                (json.dumps(data_json) + '\n').encode('utf-8')
+            ).decode('utf-8'),
+            'metadata': {
+                'partitionKeys': {
+                    'release_year': str(release_year)
+                }
+            }
+        }
+        output.append(output_record)
+    
+    return {'records': output}
+\end{lstlisting}
+
+\subsubsection{Configuración de Firehose Delivery Stream}
+
+\begin{lstlisting}[language=bash, caption={Creación del Firehose Delivery Stream}]
+aws firehose create-delivery-stream \
+    --delivery-stream-name steam-delivery-stream \
+    --delivery-stream-type KinesisStreamAsSource \
+    --kinesis-stream-source-configuration \
+        "KinesisStreamARN=arn:aws:kinesis:$AWS_REGION:$ACCOUNT_ID:stream/steam-games-stream,RoleARN=$ROLE_ARN" \
+    --extended-s3-destination-configuration '{
+        "BucketARN": "arn:aws:s3:::'"$BUCKET_NAME"'",
+        "RoleARN": "'"$ROLE_ARN"'",
+        "Prefix": "raw/steam_games/release_year=!{partitionKeyFromLambda:release_year}/",
+        "ErrorOutputPrefix": "errors/!{firehose:error-output-type}/",
+        "BufferingHints": {
+            "SizeInMBs": 64,
+            "IntervalInSeconds": 60
+        },
+        "DynamicPartitioningConfiguration": {
+            "Enabled": true,
+            "RetryOptions": {
+                "DurationInSeconds": 300
+            }
+        },
+        "ProcessingConfiguration": {
+            "Enabled": true,
+            "Processors": [{
+                "Type": "Lambda",
+                "Parameters": [
+                    {"ParameterName": "LambdaArn", 
+                     "ParameterValue": "'"$LAMBDA_ARN"'"},
+                    {"ParameterName": "BufferSizeInMBs", 
+                     "ParameterValue": "1"},
+                    {"ParameterName": "BufferIntervalInSeconds", 
+                     "ParameterValue": "60"}
+                ]
+            }]
+        }
+    }'
+\end{lstlisting}

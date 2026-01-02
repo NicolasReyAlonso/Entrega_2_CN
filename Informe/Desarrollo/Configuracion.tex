@@ -1,0 +1,49 @@
+\subsection{Configuración del bucket S3}
+
+El primer paso consiste en crear un bucket S3 con una estructura de carpetas adecuada para un Data Lake. La estructura implementada sigue las mejores prácticas de organización de datos en capas:
+
+\begin{table}[H]
+\centering
+\caption{Estructura de carpetas del bucket S3}
+\begin{tabular}{ll}
+\toprule
+\textbf{Carpeta} & \textbf{Descripción} \\
+\midrule
+\texttt{raw/} & Datos sin procesar directamente del stream \\
+\texttt{raw/steam\_games/} & Datos de videojuegos particionados por año \\
+\texttt{processed/} & Datos transformados y agregados \\
+\texttt{processed/games\_by\_year/} & Agregaciones por año de lanzamiento \\
+\texttt{processed/games\_by\_genre/} & Agregaciones por género \\
+\texttt{queries/} & Lugar donde se guardan las consultas \\
+\texttt{scripts/} & Scripts ETL de AWS Glue \\
+\texttt{config/} & Archivos de configuración \\
+\texttt{errors/} & Logs de errores de Firehose \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El nombre del bucket sigue el patrón \texttt{datalake-steam-games-\{ACCOUNT\_ID\}} para garantizar unicidad global. A continuación se muestra el código de configuración:
+
+\begin{lstlisting}[language=bash, caption={Creación del bucket y estructura de carpetas}]
+# Crear el bucket
+aws s3 mb s3://$BUCKET_NAME
+
+# Crear carpetas (objetos vacios con / al final)
+aws s3api put-object --bucket $BUCKET_NAME --key raw/
+aws s3api put-object --bucket $BUCKET_NAME --key raw/steam_games/
+aws s3api put-object --bucket $BUCKET_NAME --key processed/
+aws s3api put-object --bucket $BUCKET_NAME --key processed/games_by_year/
+aws s3api put-object --bucket $BUCKET_NAME --key processed/games_by_genre/
+aws s3api put-object --bucket $BUCKET_NAME --key queries/
+aws s3api put-object --bucket $BUCKET_NAME --key config/
+aws s3api put-object --bucket $BUCKET_NAME --key scripts/
+aws s3api put-object --bucket $BUCKET_NAME --key errors/
+\end{lstlisting}
+
+\subsubsection{Justificación de la estructura}
+
+\begin{itemize}
+    \item \textbf{Separación raw/processed:} Permite mantener los datos originales intactos mientras se generan versiones transformadas, facilitando la trazabilidad y reprocesamiento.
+    \item \textbf{Particionamiento por año:} Los datos en \texttt{raw/steam\_games/} se particionan por \texttt{release\_year}, optimizando las consultas que filtran por año de lanzamiento.
+    \item \textbf{Carpeta de errores:} Firehose almacena automáticamente los registros que fallan en el procesamiento, permitiendo su análisis y reprocesamiento posterior.
+\end{itemize}

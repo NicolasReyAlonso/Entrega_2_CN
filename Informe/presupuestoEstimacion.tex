@@ -1,0 +1,59 @@
+\section{Presupuesto y estimación de costes}
+
+A continuación se presenta una estimación de costes basada en el uso de los servicios AWS para esta práctica, considerando un escenario de uso real con 30,000 registros procesados diariamente.
+
+\subsection{Supuestos de cálculo}
+
+\begin{itemize}
+    \item Región: US East (N. Virginia) - us-east-1
+    \item Volumen de datos: 30,000 registros/día $\approx$ 15 MB/día
+    \item Tamaño promedio por registro: 500 bytes
+    \item Ejecución de jobs ETL: 1 vez al día
+    \item Tiempo de ejecución de cada job: 5 minutos
+\end{itemize}
+
+\subsection{Desglose de costes}
+
+\begin{table}[H]
+\centering
+\caption{Estimación de costes mensuales de AWS}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Servicio} & \textbf{Unidad} & \textbf{Cantidad} & \textbf{Coste (\$/mes)} \\
+\midrule
+\multicolumn{4}{l}{\textit{Amazon S3}} \\
+\quad Almacenamiento & GB & 0.5 & 0.01 \\
+\quad PUT requests & 1000 req & 900 & 0.05 \\
+\quad GET requests & 1000 req & 100 & 0.00 \\
+\midrule
+\multicolumn{4}{l}{\textit{Kinesis Data Streams}} \\
+\quad Shard hour & horas & 720 & 10.80 \\
+\quad PUT payload units & millones & 0.9 & 0.01 \\
+\midrule
+\multicolumn{4}{l}{\textit{Kinesis Data Firehose}} \\
+\quad Data ingested & GB & 0.5 & 0.02 \\
+\midrule
+\multicolumn{4}{l}{\textit{AWS Lambda}} \\
+\quad Requests & millones & 0.9 & 0.18 \\
+\quad Duration (128MB) & GB-segundo & 100 & 0.00 \\
+\midrule
+\multicolumn{4}{l}{\textit{AWS Glue}} \\
+\quad Crawler (DPU-hour) & horas & 0.5 & 0.22 \\
+\quad ETL Jobs (G.1X) & DPU-hora & 5 & 2.20 \\
+\quad Data Catalog & objetos & 10 & 0.00 \\
+\midrule
+\textbf{Total mensual} & & & \textbf{\$13.49} \\
+\textbf{Total anual} & & & \textbf{\$161.88} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Notas sobre los cálculos}
+
+\begin{itemize}
+    \item \textbf{Kinesis Data Streams:} El coste principal proviene del shard-hour (\$0.015/hora). Con 1 shard activo 24/7, el coste mensual es de aproximadamente \$10.80.
+    
+    \item \textbf{AWS Glue:} Los jobs ETL se facturan por DPU-hora (\$0.44/DPU-hora). Con 2 workers G.1X ejecutándose 5 minutos diarios, el coste mensual es aproximadamente \$2.20.
+    
+    \item \textbf{Capa gratuita:} AWS ofrece capa gratuita para Lambda (1M solicitudes/mes) y S3 (5GB), lo que podría reducir los costes en un entorno de pruebas.
+\end{itemize}

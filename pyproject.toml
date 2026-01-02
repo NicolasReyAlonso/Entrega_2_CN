@@ -8,3 +8,8 @@ dependencies = [
     "boto3>=1.42.6",
     "loguru>=0.7.3",
 ]
+
+[tool.uv.workspace]
+members = [
+    "Entrega",
+]

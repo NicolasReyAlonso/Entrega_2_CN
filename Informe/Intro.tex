@@ -1,0 +1,17 @@
+\section{Introducción}
+
+El objetivo de esta práctica es diseñar e implementar una arquitectura de Data Lake en Amazon Web Services (AWS) que permita la ingesta, transformación y almacenamiento de datos en tiempo real. Para ello, se utilizan los siguientes servicios de AWS:
+
+\begin{itemize}
+    \item \textbf{Amazon S3 (Simple Storage Service):} Servicio de almacenamiento de objetos que actúa como repositorio central del Data Lake, organizando los datos en capas (raw y processed).
+    
+    \item \textbf{Amazon Kinesis Data Streams:} Servicio de streaming de datos en tiempo real que permite capturar y procesar grandes volúmenes de datos de forma continua.
+    
+    \item \textbf{Amazon Kinesis Data Firehose:} Servicio de entrega de datos que permite cargar streams de datos en destinos como S3, aplicando transformaciones mediante funciones Lambda.
+    
+    \item \textbf{AWS Lambda:} Servicio de computación serverless que ejecuta código en respuesta a eventos, utilizado para transformar y enriquecer los datos en tránsito.
+    
+    \item \textbf{AWS Glue:} Servicio de ETL (Extract, Transform, Load) completamente administrado que incluye un Catálogo de Datos para descubrir y organizar metadatos, crawlers para inferir esquemas automáticamente, y jobs para transformaciones de datos a escala.
+\end{itemize}
+
+El dataset utilizado para esta práctica contiene información de \textbf{30,000 videojuegos de la plataforma Steam}, incluyendo datos como nombre, año de lanzamiento, géneros, categorías, precio, recomendaciones, desarrollador y publicador. Este conjunto de datos permite simular un escenario realista de ingesta y procesamiento de datos de una plataforma de distribución digital.

@@ -1,0 +1,81 @@
+\section{Diagrama del flujo de datos}
+
+La Figura \ref{fig:arquitectura} muestra el flujo completo de datos desde la ingesta hasta el almacenamiento final.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    % Estilos de nodos
+    source/.style={rectangle, draw=black!70, fill=green!20, text width=2.5cm, text centered, minimum height=1.2cm, rounded corners=3pt, font=\small},
+    process/.style={rectangle, draw=black!70, fill=blue!20, text width=2.5cm, text centered, minimum height=1.2cm, rounded corners=3pt, font=\small},
+    storage/.style={rectangle, draw=black!70, fill=orange!20, text width=2.2cm, text centered, minimum height=1.2cm, rounded corners=3pt, font=\small},
+    lambda/.style={rectangle, draw=black!70, fill=yellow!30, text width=2.2cm, text centered, minimum height=1cm, rounded corners=3pt, font=\small},
+    catalog/.style={rectangle, draw=black!70, fill=purple!20, text width=2.5cm, text centered, minimum height=1.2cm, rounded corners=3pt, font=\small},
+    arrow/.style={->, >=stealth, thick, black!70},
+    label/.style={font=\scriptsize, text=black!60}
+]
+
+% Fila 1: Ingesta
+\node[source] (csv) {CSV Dataset\\(30K registros)};
+\node[process, right=of csv] (producer) {Productor\\Python};
+\node[process, right=of producer] (kinesis) {Kinesis\\Data Stream};
+\node[process, right=of kinesis] (firehose) {Kinesis\\Firehose};
+
+% Lambda debajo de Firehose
+\node[lambda, below=0.8cm of firehose] (lambda) {Lambda\\Transform};
+
+% Fila 2: Almacenamiento y procesamiento
+\node[storage, below=3cm of csv] (s3raw) {S3 raw/};
+\node[process, right=of s3raw] (crawler) {Glue\\Crawler};
+\node[catalog, right=of crawler] (catalog) {Glue\\Data Catalog};
+\node[process, right=of catalog] (etl) {Glue\\ETL Jobs};
+
+% S3 processed
+\node[storage, below=1.5cm of etl] (s3proc) {S3 processed/};
+
+% Flechas principales
+\draw[arrow] (csv) -- (producer) node[midway, above, label] {lee};
+\draw[arrow] (producer) -- (kinesis) node[midway, above, label] {put\_record};
+\draw[arrow] (kinesis) -- (firehose) node[midway, above, label] {consume};
+\draw[arrow] (firehose) -- (lambda) node[midway, right, label] {invoca};
+\draw[arrow] (lambda) -| (s3raw) node[near end, left, label] {JSON};
+
+\draw[arrow] (s3raw) -- (crawler) node[midway, above, label] {analiza};
+\draw[arrow] (crawler) -- (catalog) node[midway, above, label] {esquema};
+\draw[arrow] (catalog) -- (etl) node[midway, above, label] {metadatos};
+\draw[arrow] (etl) -- (s3proc) node[midway, right, label] {Parquet};
+
+% Conexión ETL lee de S3 raw
+\draw[arrow, dashed] (s3raw) -- (etl) node[midway, above, label, sloped] {lee datos};
+
+\end{tikzpicture}%
+}
+\caption{Arquitectura del Data Lake implementado con servicios AWS}
+\label{fig:arquitectura}
+\end{figure}
+
+\vspace{0.5cm}
+\noindent\textbf{Leyenda de colores:} 
+\colorbox{green!20}{Verde} = Fuente de datos \quad
+\colorbox{blue!20}{Azul} = Servicios AWS \quad
+\colorbox{orange!20}{Naranja} = S3 \quad
+\colorbox{yellow!30}{Amarillo} = Lambda \quad
+\colorbox{purple!20}{Morado} = Catálogo
+
+\subsection{Descripción del flujo}
+
+\begin{enumerate}
+    \item \textbf{Ingesta:} El productor Python lee el dataset CSV y envía 30,000 registros al Kinesis Data Stream.
+    
+    \item \textbf{Streaming:} Kinesis Data Stream recibe los registros y los mantiene disponibles para su consumo.
+    
+    \item \textbf{Transformación:} Kinesis Firehose consume los datos del stream, invoca la función Lambda para transformarlos y enriquecerlos.
+    
+    \item \textbf{Almacenamiento raw:} Los datos transformados se almacenan en S3 en formato JSON, particionados por año de lanzamiento.
+    
+    \item \textbf{Catalogación:} El crawler de Glue analiza los datos en S3 e infiere el esquema, creando una tabla en el Glue Data Catalog.
+    
+    \item \textbf{ETL:} Los jobs de Glue leen los datos del catálogo, aplican agregaciones y escriben los resultados en formato Parquet en la capa processed.
+\end{enumerate}

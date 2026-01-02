@@ -1,0 +1,84 @@
+\section{Anexos}
+
+\subsection{Anexo A: Script completo de configuración (main.sh)}
+
+\begin{lstlisting}[language=bash, caption={main.sh - Script completo de configuración}]
+#!/bin/bash
+# Script de configuracion del Data Lake para Steam Games
+
+# --- CONFIGURACION INICIAL ---
+export AWS_REGION="us-east-1"
+export ACCOUNT_ID=$(aws sts get-caller-identity \
+    --query Account --output text)
+export BUCKET_NAME="datalake-steam-games-${ACCOUNT_ID}"
+export ROLE_ARN=$(aws iam get-role --role-name LabRole \
+    --query 'Role.Arn' --output text)
+
+echo "Configuracion del Data Lake - Steam Games"
+echo "Bucket: $BUCKET_NAME"
+echo "Role ARN: $ROLE_ARN"
+
+# 1. Crear bucket S3 y estructura
+aws s3 mb s3://$BUCKET_NAME
+aws s3api put-object --bucket $BUCKET_NAME --key raw/
+aws s3api put-object --bucket $BUCKET_NAME --key raw/steam_games/
+aws s3api put-object --bucket $BUCKET_NAME --key processed/
+aws s3api put-object --bucket $BUCKET_NAME --key scripts/
+aws s3api put-object --bucket $BUCKET_NAME --key errors/
+
+# 2. Crear Kinesis Data Stream
+aws kinesis create-stream \
+    --stream-name steam-games-stream \
+    --shard-count 1
+aws kinesis wait stream-exists --stream-name steam-games-stream
+
+# 3. Crear funcion Lambda
+zip -j firehose.zip firehose.py
+aws lambda create-function \
+    --function-name steam-firehose-transform \
+    --runtime python3.12 \
+    --role $ROLE_ARN \
+    --handler firehose.lambda_handler \
+    --zip-file fileb://firehose.zip \
+    --timeout 60 \
+    --memory-size 128
+
+export LAMBDA_ARN=$(aws lambda get-function \
+    --function-name steam-firehose-transform \
+    --query 'Configuration.FunctionArn' --output text)
+
+# 4. Crear Firehose Delivery Stream
+# (Ver codigo completo en seccion 2.3)
+
+# 5. Configurar Glue
+aws glue create-database \
+    --database-input '{"Name":"steam_games_db"}'
+aws glue create-crawler \
+    --name steam-games-crawler \
+    --role $ROLE_ARN \
+    --database-name steam_games_db \
+    --targets '{"S3Targets": [{"Path": "s3://'"$BUCKET_NAME"'/raw/steam_games/"}]}'
+
+# 6. Subir scripts ETL
+aws s3 cp energy_aggregation_daily.py \
+    s3://$BUCKET_NAME/scripts/steam_aggregation_by_year.py
+aws s3 cp energy_aggregation_monthly.py \
+    s3://$BUCKET_NAME/scripts/steam_aggregation_by_genre.py
+
+# 7. Crear jobs ETL
+# (Ver codigo completo en seccion 2.4)
+
+echo "Configuracion completada"
+\end{lstlisting}
+
+\subsection{Anexo B: Uso de Inteligencia Artificial}
+
+Para el desarrollo de esta práctica se ha utilizado \textbf{GitHub Copilot} (modelo Claude) como asistente de programación. El uso de IA ha sido el siguiente:
+
+\begin{itemize}
+    \item \textbf{Generación de código:} Asistencia en la escritura de los scripts Python para el productor de datos y las funciones Lambda.
+    \item \textbf{Comandos AWS CLI:} Ayuda en la sintaxis correcta de los comandos de AWS CLI para configurar los servicios.
+    \item \textbf{Documentación:} Asistencia en la estructuración y redacción de este informe.
+\end{itemize}
+
+Todo el código generado ha sido revisado, probado y adaptado según las necesidades específicas del proyecto.

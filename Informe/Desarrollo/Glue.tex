@@ -1,0 +1,210 @@
+\subsection{Configuración de AWS Glue}
+
+AWS Glue se utiliza para tres propósitos principales: catalogar los datos almacenados en S3, inferir automáticamente el esquema, y ejecutar trabajos ETL para generar agregaciones.
+
+\subsubsection{Creación de la base de datos y crawler}
+
+\begin{lstlisting}[language=bash, caption={Configuración de Glue Catalog y Crawler}]
+# Crear base de datos en Glue Catalog
+aws glue create-database \
+    --database-input '{"Name":"steam_games_db"}'
+
+# Crear Crawler para analizar los datos en S3
+aws glue create-crawler \
+    --name steam-games-crawler \
+    --role $ROLE_ARN \
+    --database-name steam_games_db \
+    --targets '{"S3Targets": [{"Path": "s3://'"$BUCKET_NAME"'/raw/steam_games/"}]}'
+
+# Ejecutar el crawler
+aws glue start-crawler --name steam-games-crawler
+\end{lstlisting}
+
+El crawler analiza los archivos JSON en S3 y genera automáticamente una tabla en el Catálogo de Datos con el esquema inferido, incluyendo las columnas añadidas por la transformación Lambda.
+
+\subsubsection{Trabajos ETL}
+
+Se han implementado dos trabajos ETL en Glue para generar agregaciones útiles:
+
+\paragraph{Job 1: Agregación por año de lanzamiento}
+
+Este trabajo agrupa los juegos por año de lanzamiento y calcula estadísticas agregadas.
+
+\begin{lstlisting}[language=Python, caption={steam\_aggregation\_by\_year.py - ETL por año}]
+# steam_aggregation_by_year.py
+import sys
+import logging
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.utils import getResolvedOptions
+from pyspark.sql.functions import col, count, avg, sum as spark_sum
+from awsglue.dynamicframe import DynamicFrame
+
+logging.basicConfig(level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def main():
+    args = getResolvedOptions(sys.argv, 
+        ['database', 'table', 'output_path'])
+    database = args['database']
+    table = args['table']
+    output_path = args['output_path']
+    
+    logger.info(f"Database: {database}, Table: {table}")
+    
+    sc = SparkContext()
+    glueContext = GlueContext(sc)
+    
+    # Leer desde Glue Catalog
+    dynamic_frame = glueContext.create_dynamic_frame.from_catalog(
+        database=database,
+        table_name=table
+    )
+    
+    df = dynamic_frame.toDF()
+    logger.info(f"Registros leidos: {df.count()}")
+    
+    # Agregacion por ano de lanzamiento
+    yearly_df = df.groupBy("release_year") \
+        .agg(
+            count("*").alias("total_games"),
+            avg("price").alias("avg_price"),
+            spark_sum("recommendations").alias("total_recommendations"),
+            avg("recommendations").alias("avg_recommendations")
+        ) \
+        .orderBy("release_year")
+    
+    output_dynamic_frame = DynamicFrame.fromDF(
+        yearly_df, glueContext, "output")
+    
+    # Escribir en formato Parquet
+    glueContext.write_dynamic_frame.from_options(
+        frame=output_dynamic_frame,
+        connection_type="s3",
+        connection_options={
+            "path": output_path,
+            "partitionKeys": ["release_year"]
+        },
+        format="parquet",
+        format_options={"compression": "snappy"}
+    )
+    
+    logger.info(f"Completado. Registros: {yearly_df.count()}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\paragraph{Job 2: Agregación por género}
+
+Este trabajo explota los géneros (un juego puede tener múltiples géneros) y calcula estadísticas por cada género.
+
+\begin{lstlisting}[language=Python, caption={steam\_aggregation\_by\_genre.py - ETL por género}]
+# steam_aggregation_by_genre.py
+import sys
+import logging
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.utils import getResolvedOptions
+from pyspark.sql.functions import col, count, avg, sum as spark_sum
+from pyspark.sql.functions import split, explode
+from awsglue.dynamicframe import DynamicFrame
+
+logging.basicConfig(level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def main():
+    args = getResolvedOptions(sys.argv, 
+        ['database', 'table', 'output_path'])
+    database = args['database']
+    table = args['table']
+    output_path = args['output_path']
+
+    logger.info(f"Database: {database}, Table: {table}")
+    
+    sc = SparkContext()
+    glueContext = GlueContext(sc)
+
+    dynamic_frame = glueContext.create_dynamic_frame.from_catalog(
+        database=database,
+        table_name=table
+    )
+    
+    df = dynamic_frame.toDF()
+    logger.info(f"Registros leidos: {df.count()}")
+    
+    # Explotar generos (separados por ;)
+    df_exploded = df.withColumn("genre", 
+        explode(split(col("genres"), ";")))
+    
+    # Agregacion por genero
+    genre_df = df_exploded.groupBy("genre") \
+        .agg(
+            count("*").alias("total_games"),
+            avg("price").alias("avg_price"),
+            spark_sum("recommendations").alias("total_recommendations"),
+            avg("recommendations").alias("avg_recommendations")
+        ) \
+        .orderBy(col("total_games").desc())
+    
+    output_dynamic_frame = DynamicFrame.fromDF(
+        genre_df, glueContext, "output")
+    
+    glueContext.write_dynamic_frame.from_options(
+        frame=output_dynamic_frame,
+        connection_type="s3",
+        connection_options={
+            "path": output_path,
+            "partitionKeys": ["genre"]
+        },
+        format="parquet",
+        format_options={"compression": "snappy"}
+    )
+    
+    logger.info(f"Completado. Registros: {genre_df.count()}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsubsection{Creación de los jobs en Glue}
+
+\begin{lstlisting}[language=bash, caption={Creación de trabajos ETL en Glue}]
+# Job 1: Agregacion por ano
+aws glue create-job \
+    --name steam-aggregation-by-year \
+    --role $ROLE_ARN \
+    --command '{
+        "Name": "glueetl",
+        "ScriptLocation": "s3://'"$BUCKET_NAME"'/scripts/steam_aggregation_by_year.py",
+        "PythonVersion": "3"
+    }' \
+    --default-arguments '{
+        "--database": "steam_games_db",
+        "--table": "steam_games",
+        "--output_path": "s3://'"$BUCKET_NAME"'/processed/games_by_year/"
+    }' \
+    --glue-version "4.0" \
+    --number-of-workers 2 \
+    --worker-type "G.1X"
+
+# Job 2: Agregacion por genero
+aws glue create-job \
+    --name steam-aggregation-by-genre \
+    --role $ROLE_ARN \
+    --command '{
+        "Name": "glueetl",
+        "ScriptLocation": "s3://'"$BUCKET_NAME"'/scripts/steam_aggregation_by_genre.py",
+        "PythonVersion": "3"
+    }' \
+    --default-arguments '{
+        "--database": "steam_games_db",
+        "--table": "steam_games",
+        "--output_path": "s3://'"$BUCKET_NAME"'/processed/games_by_genre/"
+    }' \
+    --glue-version "4.0" \
+    --number-of-workers 2 \
+    --worker-type "G.1X"
+\end{lstlisting}

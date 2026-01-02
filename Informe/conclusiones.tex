@@ -1,0 +1,33 @@
+\section{Conclusiones}
+
+\subsection{Conocimientos adquiridos}
+
+Esta práctica ha permitido adquirir experiencia práctica en:
+
+\begin{itemize}
+    \item Diseño de arquitecturas de Data Lake siguiendo el patrón de capas (raw/processed).
+    \item Implementación de pipelines de datos en tiempo real con Kinesis.
+    \item Desarrollo de funciones Lambda para transformación de datos en streaming.
+    \item Uso de AWS Glue para catalogación automática y procesamiento ETL con Spark.
+    \item Configuración de servicios AWS mediante CLI, lo que facilita la automatización y reproducibilidad.
+\end{itemize}
+
+\subsection{Dificultades encontradas}
+
+\begin{itemize}
+    \item \textbf{Configuración de Firehose con particionamiento dinámico:} Requiere una configuración específica de la Lambda para devolver las claves de partición en el formato correcto.
+    
+    \item \textbf{Tiempos de espera:} Los servicios como Kinesis Stream y Firehose requieren tiempo para activarse, lo que debe considerarse en los scripts de automatización.
+    
+    \item \textbf{Depuración de jobs Glue:} La depuración de errores en Spark requiere revisar los logs de CloudWatch, lo que puede ser tedioso.
+\end{itemize}
+
+\subsection{Posibles mejoras}
+
+\begin{itemize}
+    \item Implementar Amazon Athena para consultas SQL directas sobre los datos en S3.
+    \item Añadir Amazon QuickSight para visualización de dashboards.
+    \item Configurar alertas de CloudWatch para monitorizar el pipeline.
+    \item Implementar versionado del bucket S3 para recuperación ante errores.
+    \item Usar AWS Step Functions para orquestar el flujo completo de forma más robusta.
+\end{itemize}

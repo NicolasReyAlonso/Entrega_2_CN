@@ -1,0 +1,100 @@
+\section{Demostraciones de Funcionalidad en AWS}
+
+A continuación se presentan capturas de pantalla que demuestran el correcto funcionamiento de la arquitectura implementada.
+
+Cabe destacar que, debido a que la practica la he realizado en su totalidad en la 
+terminal con ".sh" y ".py", las imágenes corresponden a capturas de los resultados,
+no al proceso de creación de la arquitectura. Para la creación de la misma, 
+vaya a la sección \textit{Desarrollo de las actividades}.
+
+\subsection{Amazon S3 - Data Lake}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/0 Bucket.png}
+\caption{Bucket S3 creado para el Data Lake}
+\label{fig:bucket}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/1 datalake.png}
+\caption{Estructura de carpetas del Data Lake en S3}
+\label{fig:datalake}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/2 Datalake processed 1.png}
+\caption{Datos procesados en la capa processed - Vista 1}
+\label{fig:processed1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/2 Datalake processed 2.png}
+\caption{Datos procesados en la capa processed - Vista 2}
+\label{fig:processed2}
+\end{figure}
+
+\subsection{AWS Glue - Catálogo de Datos}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/3 databases.png}
+\caption{Base de datos creada en AWS Glue Data Catalog}
+\label{fig:databases}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/4 Tables.png}
+\caption{Tablas detectadas por el Crawler en el catálogo}
+\label{fig:tables}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/5 schema.png}
+\caption{Esquema inferido automáticamente por el Crawler}
+\label{fig:schema}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/6 Partitions.png}
+\caption{Particiones detectadas por año de lanzamiento}
+\label{fig:partitions}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/7 glue crawlers.png}
+\caption{Crawler configurado y ejecutado correctamente}
+\label{fig:crawlers}
+\end{figure}
+
+\subsection{Amazon Athena - Consultas}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/8 queries 1.png}
+\caption{Consulta SQL en Athena sobre los datos del Data Lake - Ejemplo 1}
+\label{fig:queries1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/8 queries 2.png}
+\caption{Consulta SQL en Athena sobre los datos del Data Lake - Ejemplo 2}
+\label{fig:queries2}
+\end{figure}
+
+\subsection{AWS Glue - Jobs ETL}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Imagenes/9 ETL.png}
+\caption{Jobs ETL ejecutados correctamente en AWS Glue}
+\label{fig:etl}
+\end{figure}
