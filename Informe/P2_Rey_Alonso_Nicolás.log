@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  2 JAN 2026 17:18
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  2 JAN 2026 23:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -622,7 +622,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 \Hy@SectionHShift=\skip74
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 88.
- (./P2_Rey_Alonso_Nicolás.aux (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./referencias.aux) (./anexos.aux))
+ (./P2_Rey_Alonso_Nicolás.aux (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
 \openout1 = `P2_Rey_Alonso_Nicolás.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 90.
@@ -895,15 +895,6 @@ File: lstlang1.sty 2024/09/23 1.10c listings language file
 
 
 
-]
-\openout2 = `referencias.aux'.
-
- (./referencias.tex)
-
-[22
-
-
-
 ] (./Imagenes/Demostraciones.tex
 File: Imagenes/0 Bucket.png Graphic file (type bmp)
 <Imagenes/0 Bucket.png>
@@ -911,7 +902,7 @@ File: Imagenes/1 datalake.png Graphic file (type bmp)
 <Imagenes/1 datalake.png>
 
 
-[23
+[22
 
 
 ]
@@ -921,62 +912,80 @@ File: Imagenes/2 Datalake processed 2.png Graphic file (type bmp)
 <Imagenes/2 Datalake processed 2.png>
 
 
-[24]
+[23]
 File: Imagenes/3 databases.png Graphic file (type bmp)
 <Imagenes/3 databases.png>
 File: Imagenes/4 Tables.png Graphic file (type bmp)
 <Imagenes/4 Tables.png>
 
 
-[25]
+[24]
 File: Imagenes/5 schema.png Graphic file (type bmp)
 <Imagenes/5 schema.png>
 File: Imagenes/6 Partitions.png Graphic file (type bmp)
 <Imagenes/6 Partitions.png>
 
 
-[26]
+[25]
 File: Imagenes/7 glue crawlers.png Graphic file (type bmp)
 <Imagenes/7 glue crawlers.png>
 File: Imagenes/8 queries 1.png Graphic file (type bmp)
 <Imagenes/8 queries 1.png>
 
 
-[27]
+[26]
 File: Imagenes/8 queries 2.png Graphic file (type bmp)
 <Imagenes/8 queries 2.png>
 File: Imagenes/9 ETL.png Graphic file (type bmp)
 <Imagenes/9 ETL.png>
 )
 
-[28]
+[27]
 
-[29]
+[28]
 \openout2 = `anexos.aux'.
 
  (./anexos.tex
 
-[30
+[29
 
 ])
 
-[31] 
+[30]
+\openout2 = `herramientas.aux'.
+
+ (./herramientas.tex)
+
+[31
+
+
+
+]
+\openout2 = `referencias.aux'.
+
+ (./referencias.tex)
+
+[32
+
+
+
+] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
-(./P2_Rey_Alonso_Nicolás.aux (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./referencias.aux) (./anexos.aux))
+(./P2_Rey_Alonso_Nicolás.aux (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `P2_Rey_Alonso_Nicolás.out' has not changed.
-(rerunfilecheck)             Checksum: 2C8D9DA927DF01EEE271F577F074FF73;7340.
+(rerunfilecheck)             Checksum: D2E06EFF5764B0124B612A37FBA9DEFB;8087.
  ) 
 Here is how much of TeX's memory you used:
- 29109 strings out of 473832
- 596687 string characters out of 5729480
- 1723545 words of memory out of 5000000
- 51623 multiletter control sequences out of 15000+600000
+ 29141 strings out of 473832
+ 597468 string characters out of 5729480
+ 1724476 words of memory out of 5000000
+ 51646 multiletter control sequences out of 15000+600000
  562349 words of font info for 98 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,12n,93p,1098b,1884s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on P2_Rey_Alonso_Nicolás.pdf (32 pages).
+Output written on P2_Rey_Alonso_Nicolás.pdf (33 pages).
