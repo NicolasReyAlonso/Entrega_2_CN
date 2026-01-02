@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "xelatex",
+      "type": "shell",
+      "command": "xelatex -interaction=nonstopmode \"${file}\"",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always" }
+    }
+  ]
+}
