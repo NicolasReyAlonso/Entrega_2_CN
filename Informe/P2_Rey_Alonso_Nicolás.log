@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  2 JAN 2026 23:37
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  3 JAN 2026 10:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -622,7 +622,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 \Hy@SectionHShift=\skip74
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 88.
- (./P2_Rey_Alonso_Nicolás.aux (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
+ (./P2_Rey_Alonso_Nicolás.aux (./Portada.aux) (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
 \openout1 = `P2_Rey_Alonso_Nicolás.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 90.
@@ -763,11 +763,19 @@ Package hyperref Info: Link coloring ON on input line 90.
 \@outlinefile=\write4
 \openout4 = `P2_Rey_Alonso_Nicolás.out'.
 
+\openout2 = `Portada.aux'.
+
+ (./Portada.tex
+
+LaTeX Font Warning: Font shape `TU/TimesNewRoman(0)/m/sc' undefined
+(Font)              using `TU/TimesNewRoman(0)/m/n' instead on input line 7.
+
 
 
 [1
 
-]
+
+])
 \openout2 = `indice.aux'.
 
  (./indice.tex
@@ -787,6 +795,8 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (
 )
 
 [1
+
+
 
 ])
 \tf@toc=\write5
@@ -971,19 +981,23 @@ File: Imagenes/9 ETL.png Graphic file (type bmp)
 
 ] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
-(./P2_Rey_Alonso_Nicolás.aux (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
+(./P2_Rey_Alonso_Nicolás.aux (./Portada.aux) (./indice.aux) (./Intro.aux) (./Desarrollo/ImplProdDat.aux) (./Desarrollo/Consumidor.aux) (./Desarrollo/Glue.aux) (./diagrama.aux) (./presupuestoEstimacion.aux) (./conclusiones.aux) (./anexos.aux) (./herramientas.aux) (./referencias.aux))
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package rerunfilecheck Info: File `P2_Rey_Alonso_Nicolás.out' has not changed.
 (rerunfilecheck)             Checksum: D2E06EFF5764B0124B612A37FBA9DEFB;8087.
  ) 
 Here is how much of TeX's memory you used:
- 29141 strings out of 473832
- 597468 string characters out of 5729480
- 1724476 words of memory out of 5000000
- 51646 multiletter control sequences out of 15000+600000
+ 29170 strings out of 473832
+ 598116 string characters out of 5729480
+ 1725104 words of memory out of 5000000
+ 51668 multiletter control sequences out of 15000+600000
  562349 words of font info for 98 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,12n,93p,1098b,1884s stack positions out of 10000i,1000n,20000p,200000b,200000s
