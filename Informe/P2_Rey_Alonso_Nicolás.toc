@@ -39,6 +39,5 @@
 \contentsline {subsection}{\numberline {8.1}Desarrollo}{31}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}Documentación}{31}{subsection.8.2}%
 \contentsline {subsection}{\numberline {8.3}Gestión de versiones}{31}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}}{31}{subsection.8.4}%
 \contentsline {section}{\numberline {9}Referencias y bibliografía}{32}{section.9}%
 \contentsline {subsection}{\numberline {9.1}Código Fuente:}{32}{subsection.9.1}%
